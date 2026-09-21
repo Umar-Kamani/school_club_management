@@ -1,7 +1,7 @@
 .hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%);
+  background: linear-gradient(135deg, var(--alche-primary) 0%, #001530 100%);
   padding: 20px 32px 28px;
   color: #fff;
 }
@@ -9,12 +9,12 @@
 .circle {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .c1 { width: 420px; height: 420px; top: -220px; right: -140px; }
-.c2 { width: 260px; height: 260px; bottom: -160px; right: 60px; background: rgba(255, 255, 255, 0.08); }
-.c3 { width: 160px; height: 160px; top: -60px; left: -40px; background: rgba(255, 255, 255, 0.06); }
+.c2 { width: 260px; height: 260px; bottom: -160px; right: 60px; background: rgba(255, 255, 255, 0.03); }
+.c3 { width: 160px; height: 160px; top: -60px; left: -40px; background: rgba(255, 255, 255, 0.02); }
 
 .navrow {
   position: relative;
@@ -24,9 +24,11 @@
 }
 
 .wordmark {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 20px;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .nav {
@@ -38,14 +40,19 @@
 .nav a {
   color: #fff;
   text-decoration: none;
-  opacity: 0.75;
+  opacity: 0.8;
   padding-bottom: 3px;
+  transition: opacity 0.2s ease;
+}
+
+.nav a:hover {
+  opacity: 1;
 }
 
 .nav a.active {
   opacity: 1;
-  font-weight: 500;
-  border-bottom: 2px solid #fff;
+  font-weight: 600;
+  border-bottom: 3px solid var(--alche-accent);
 }
 
 .hero-content {
