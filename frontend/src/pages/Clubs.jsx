@@ -1,22 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { clubs as initialClubs, memberships } from "../data/mockData";
 import "./Clubs.css";
 
 const CATEGORIES = ["All", "Sport", "Academic", "Arts"];
+const API_BASE = "http://localhost:3000/api";
 
 function Clubs() {
-  const [clubs, setClubs] = useState(initialClubs);
+  const [clubs, setClubs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
   const [showForm, setShowForm] = useState(false);
-  const [editingClub, setEditingClub] = useState(null); // null = adding new
+  const [editingClub, setEditingClub] = useState(null);
   const [formData, setFormData] = useState({ club_name: "", category: "Sport", description: "" });
   const [formError, setFormError] = useState("");
   const [feedback, setFeedback] = useState("");
 
-  // Only clubs matching both the search text AND the selected category
+  // Fetch clubs from backend
+  useEffect(() => {
+    fetchClubs();
+  }, []);
+
+  async function fetchClubs() {
+    try {
+      const res = await fetch(`${API_BASE}/clubs`);
+      const data = await res.json();
+      setClubs(data);
+    } catch (err) {
+      showFeedback("Error loading clubs from server.");
+    }
+  }
+
   const filteredClubs = clubs.filter((club) => {
     const matchesCategory = activeCategory === "All" || club.category === activeCategory;
     const matchesSearch = club.club_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,31 +56,41 @@ function Clubs() {
     setShowForm(true);
   }
 
-  function handleDelete(clubId) {
-    setClubs(clubs.filter((c) => c.club_id !== clubId));
-    showFeedback("Club deleted.");
+  async function handleDelete(clubId) {
+    if (!window.confirm("Are you sure you want to delete this club?")) return;
+    try {
+      // Note: Delete API needs to be added to backend, for now we simulate locally 
+      // but in a real app you'd call: await fetch(`${API_BASE}/clubs/${clubId}`, { method: 'DELETE' })
+      setClubs(clubs.filter((c) => c.club_id !== clubId));
+      showFeedback("Club deleted.");
+    } catch (err) {
+      showFeedback("Error deleting club.");
+    }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-
     if (!formData.club_name.trim()) {
       setFormError("Club name cannot be empty.");
       return;
     }
 
-    if (editingClub) {
-      // Update: keep the same club_id, replace the rest of the fields
-      setClubs(clubs.map((c) => (c.club_id === editingClub.club_id ? { ...c, ...formData } : c)));
-      showFeedback("Club updated successfully.");
-    } else {
-      // Create: add a new club to the end of the array
-      const newClub = { club_id: Date.now(), ...formData };
-      setClubs([...clubs, newClub]);
-      showFeedback("Club added successfully.");
+    try {
+      if (editingClub) {
+        // Update API Call (To be added to backend)
+        setClubs(clubs.map((c) => (c.club_id === editingClub.club_id ? { ...c, ...formData } : c)));
+        showFeedback("Club updated successfully.");
+      } else {
+        // Create API Call (To be added to backend, currently backend only has memberships POST)
+        // Simulating the add for now until I expand the backend
+        const newClub = { club_id: Date.now(), ...formData };
+        setClubs([...clubs, newClub]);
+        showFeedback("Club added successfully.");
+      }
+      setShowForm(false);
+    } catch (err) {
+      showFeedback("Error saving club.");
     }
-
-    setShowForm(false);
   }
 
   return (
@@ -110,9 +134,7 @@ function Clubs() {
               <h3>{club.club_name}</h3>
               <p className="club-desc">{club.description}</p>
               <div className="club-meta">
-                <span className="members">
-                  {memberships.filter((m) => m.club_id === club.club_id).length} members
-                </span>
+                <span className="members">Loading members...</span>
                 <div className="club-actions">
                   <button className="btn ghost small" onClick={() => openEditForm(club)}>
                     Edit
