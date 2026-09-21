@@ -1,14 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');
+const StudentController = require('../controllers/studentController');
 
-router.get('/', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM students');
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+router.get('/', StudentController.getStudents);
+router.post('/', StudentController.createStudent);
+router.put('/:id', StudentController.updateStudent);
+router.delete('/:id', StudentController.deleteStudent);
 
 module.exports = router;
