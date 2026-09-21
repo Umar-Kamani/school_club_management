@@ -17,3 +17,60 @@ h1, h2, h3 {
   font-weight: 500;
   margin: 0;
 }
+
+
+.btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+}
+
+.btn.primary { background: var(--marigold); color: #3A2405; }
+.btn.ghost { background: transparent; border: 1px solid var(--hairline); color: var(--ink); }
+.btn.danger { background: transparent; border: 1px solid var(--brick); color: var(--brick); }
+.btn.small { padding: 5px 10px; font-size: 12px; }
+
+.chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 10px;
+}
+
+.chip.sport { background: #FBEDE0; color: var(--marigold-text); }
+.chip.academic { background: var(--teal-tint); color: var(--teal-text); }
+.chip.arts { background: #F7E7E5; color: #8A342C; }
+
+.feedback {
+  background: var(--teal-tint);
+  color: var(--teal-text);
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.form-panel {
+  border: 1px dashed var(--hairline);
+  border-radius: 10px;
+  padding: 20px;
+  background: var(--mist);
+}
+
+.form-error {
+  color: var(--brick);
+  font-size: 12px;
+  margin: -6px 0 12px;
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 30px 0 12px;
+}
