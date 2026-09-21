@@ -8,17 +8,22 @@
   --alche-text-muted: #555555;    /* Muted Grey for descriptions */
   --alche-border: #D1D5DB;       /* Soft border color */
   
-  /* Functional Mappings */
+  /* Functional Mappings - Preserving the original design system */
   --hero-1: var(--alche-primary);
-  --hero-2: var(--alche-primary);
+  --hero-2: #101B4D;
   --ink: var(--alche-text-dark);
   --canvas: var(--alche-secondary);
   --mist: var(--alche-bg-light);
   --marigold: var(--alche-accent);
-  --marigold-text: var(--alche-text-dark);
+  --marigold-text: #7A4B0E;
+  --teal: #1C7A82;
+  --teal-tint: #E4F2F1;
+  --teal-text: #125157;
+  --brick: #C1443C;
   --hairline: var(--alche-border);
   --muted: var(--alche-text-muted);
 
-  --font-serif: 'Inter', sans-serif;
-  --font-sans: 'Inter', sans-serif;
+  /* Requested Fonts */
+  --font-serif: 'Fraunces', serif;
+  --font-sans: 'IBM Plex Sans', sans-serif;
 }
