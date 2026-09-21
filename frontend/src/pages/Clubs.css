@@ -1,0 +1,142 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 180px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filter {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.filter.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.btn.small {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.club-card {
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--canvas);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.club-card h3 {
+  font-size: 16px;
+}
+
+.club-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.club-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--hairline);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.club-meta .members {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.club-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.form-panel {
+  border: 1px dashed var(--hairline);
+  border-radius: 10px;
+  padding: 20px;
+  background: var(--mist);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.form-error {
+  color: var(--brick);
+  font-size: 12px;
+  margin: -6px 0 12px;
+}
+
+.feedback {
+  background: var(--teal-tint);
+  color: var(--teal-text);
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
