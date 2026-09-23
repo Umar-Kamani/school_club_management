@@ -1,8 +1,8 @@
-# 🏛️ ALCHE Club Management System
+#  ALCHE Club Management System
 
 A full-stack web application designed for the **African Leadership College of Higher Education (ALCHE)** to manage student clubs, memberships, and campus organizations.
 
-## 🚀 Project Overview
+##  Project Overview
 This system allows administrators to track all active clubs on campus, manage student enrollments, and maintain a digital directory of student leaders and participants.
 
 ### Tech Stack
@@ -13,7 +13,7 @@ This system allows administrators to track all active clubs on campus, manage st
 
 ---
 
-## 🛠️ Installation & Setup
+##  Installation & Setup
 
 ### 1. Prerequisites
 - Node.js (v16 or higher)

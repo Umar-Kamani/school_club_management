@@ -1,17 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { students as initialStudents } from "../data/mockData";
 import "./Students.css";
 
+const API_BASE = "http://localhost:3000/api";
+
 function Students() {
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [showForm, setShowForm] = useState(false);
-  const [editingStudent, setEditingStudent] = useState(null); // null = adding new
+  const [editingStudent, setEditingStudent] = useState(null);
   const [formData, setFormData] = useState({ name: "", email: "", programme: "" });
   const [formError, setFormError] = useState("");
   const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  async function fetchStudents() {
+    try {
+      const res = await fetch(`${API_BASE}/students`);
+      const data = await res.json();
+      setStudents(data);
+    } catch (err) {
+      showFeedback("Error loading students from server.");
+    }
+  }
 
   const filteredStudents = students.filter((student) =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -36,14 +51,21 @@ function Students() {
     setShowForm(true);
   }
 
-  function handleDelete(studentId) {
-    setStudents(students.filter((s) => s.student_id !== studentId));
-    showFeedback("Student deleted.");
+  async function handleDelete(studentId) {
+    if (!window.confirm("Are you sure you want to delete this student?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/students/${studentId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setStudents(students.filter((s) => s.student_id !== studentId));
+        showFeedback("Student deleted from database.");
+      }
+    } catch (err) {
+      showFeedback("Error deleting student.");
+    }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-
     if (!formData.name.trim()) {
       setFormError("Name cannot be empty.");
       return;
@@ -53,18 +75,32 @@ function Students() {
       return;
     }
 
-    if (editingStudent) {
-      setStudents(
-        students.map((s) => (s.student_id === editingStudent.student_id ? { ...s, ...formData } : s))
-      );
-      showFeedback("Student updated successfully.");
-    } else {
-      const newStudent = { student_id: Date.now(), ...formData };
-      setStudents([...students, newStudent]);
-      showFeedback("Student added successfully.");
+    try {
+      if (editingStudent) {
+        const res = await fetch(`${API_BASE}/students/${editingStudent.student_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          setStudents(students.map((s) => (s.student_id === editingStudent.student_id ? { ...s, ...formData } : s)));
+          showFeedback("Student updated successfully.");
+        }
+      } else {
+        const res = await fetch(`${API_BASE}/students`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          await fetchStudents();
+          showFeedback("Student added to database!");
+        }
+      }
+      setShowForm(false);
+    } catch (err) {
+      showFeedback("Error saving student.");
     }
-
-    setShowForm(false);
   }
 
   return (
@@ -120,51 +156,51 @@ function Students() {
               </tr>
             ))}
           </tbody>
-        </table>
-        {filteredStudents.length === 0 && <p className="empty">No students match your search.</p>}
+          {filteredStudents.length === 0 && <p className="empty">No students match your search.</p>}
 
-        {showForm && (
-          <>
-            <p className="section-label" style={{ marginTop: "30px" }}>
-              {editingStudent ? "Edit student" : "Add student"}
-            </p>
-            <form className="form-panel" onSubmit={handleSubmit}>
-              <div className="form-grid">
-                <div className="field">
-                  <label>Full name</label>
-                  <input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. John Smith"
-                  />
+          {showForm && (
+            <>
+              <p className="section-label" style={{ marginTop: "30px" }}>
+                {editingStudent ? "Edit student" : "Add student"}
+              </p>
+              <form className="form-panel" onSubmit={handleSubmit}>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>Full name</label>
+                    <input
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. John Smith"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Email</label>
+                    <input
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="john@uni.edu"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Programme</label>
+                    <input
+                      value={formData.programme}
+                      onChange={(e) => setFormData({ ...formData, programme: e.target.value })}
+                      placeholder="e.g. Computer Science"
+                    />
+                  </div>
                 </div>
-                <div className="field">
-                  <label>Email</label>
-                  <input
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="john@uni.edu"
-                  />
-                </div>
-                <div className="field">
-                  <label>Programme</label>
-                  <input
-                    value={formData.programme}
-                    onChange={(e) => setFormData({ ...formData, programme: e.target.value })}
-                    placeholder="e.g. Computer Science"
-                  />
-                </div>
-              </div>
-              {formError && <p className="form-error">{formError}</p>}
-              <button type="submit" className="btn primary">
-                Save student
-              </button>
-              <button type="button" className="btn ghost" style={{ marginLeft: "8px" }} onClick={() => setShowForm(false)}>
-                Cancel
-              </button>
-            </form>
-          </>
-        )}
+                {formError && <p className="form-error">{formError}</p>}
+                <button type="submit" className="btn primary">
+                  Save student
+                </button>
+                <button type="button" className="btn ghost" style={{ marginLeft: "8px" }} onClick={() => setShowForm(false)}>
+                  Cancel
+                </button>
+              </form>
+            </>
+          )}
+        </table>
       </div>
     </>
   );

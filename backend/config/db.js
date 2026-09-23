@@ -13,7 +13,7 @@ const pool = mysql.createPool({
 
 pool.promise().getConnection()
     .then(connection => {
-        console.log('✅ Successfully connected to phpMyAdmin Database!');
+        console.log(' Successfully connected to phpMyAdmin Database!');
         connection.release();
     })
     .catch(err => {

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { students, clubs, memberships as initialMemberships } from "../data/mockData";
 import "./Memberships.css";
 
+const API_BASE = "http://localhost:3000/api";
+
 function formatDate(dateString) {
+  if (!dateString) return "N/A";
   return new Date(dateString).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -12,29 +14,42 @@ function formatDate(dateString) {
 }
 
 function Memberships() {
-  const [memberships, setMemberships] = useState(initialMemberships);
+  const [memberships, setMemberships] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [clubs, setClubs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const [showForm, setShowForm] = useState(false);
-  const [editingMembership, setEditingMembership] = useState(null); // null = adding new
+  const [editingMembership, setEditingMembership] = useState(null);
   const [formData, setFormData] = useState({
-    student_id: students[0]?.student_id,
-    club_id: clubs[0]?.club_id,
+    student_id: "",
+    club_id: "",
     join_date: new Date().toISOString().slice(0, 10),
   });
   const [formError, setFormError] = useState("");
   const [feedback, setFeedback] = useState("");
 
-  function getStudent(id) {
-    return students.find((s) => s.student_id === id);
-  }
+  useEffect(() => {
+    loadInitialData();
+  }, []);
 
-  function getClub(id) {
-    return clubs.find((c) => c.club_id === id);
+  async function loadInitialData() {
+    try {
+      const [memRes, stuRes, clubRes] = await Promise.all([
+        fetch(`${API_BASE}/memberships`),
+        fetch(`${API_BASE}/students`),
+        fetch(`${API_BASE}/clubs`),
+      ]);
+      setMemberships(await memRes.json());
+      setStudents(await stuRes.json());
+      setClubs(await clubRes.json());
+    } catch (err) {
+      showFeedback("Error loading data from server.");
+    }
   }
 
   const filteredMemberships = memberships.filter((m) => {
-    const student = getStudent(m.student_id);
+    const student = students.find((s) => s.student_id === m.student_id);
     return student?.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
@@ -46,8 +61,8 @@ function Memberships() {
   function openAddForm() {
     setEditingMembership(null);
     setFormData({
-      student_id: students[0]?.student_id,
-      club_id: clubs[0]?.club_id,
+      student_id: students[0]?.student_id || "",
+      club_id: clubs[0]?.club_id || "",
       join_date: new Date().toISOString().slice(0, 10),
     });
     setFormError("");
@@ -65,33 +80,45 @@ function Memberships() {
     setShowForm(true);
   }
 
-  function handleRemove(membershipId) {
-    setMemberships(memberships.filter((m) => m.membership_id !== membershipId));
-    showFeedback("Membership removed.");
+  async function handleRemove(membershipId) {
+    if (!window.confirm("Are you sure you want to remove this membership?")) return;
+    try {
+      const res = await fetch(`${API_BASE}/memberships/${membershipId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setMemberships(memberships.filter((m) => m.membership_id !== membershipId));
+        showFeedback("Membership removed from database.");
+      }
+    } catch (err) {
+      showFeedback("Error removing membership.");
+    }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-
     if (!formData.join_date) {
       setFormError("Join date cannot be empty.");
       return;
     }
 
-    if (editingMembership) {
-      setMemberships(
-        memberships.map((m) =>
-          m.membership_id === editingMembership.membership_id ? { ...m, ...formData } : m
-        )
-      );
-      showFeedback("Membership updated successfully.");
-    } else {
-      const newMembership = { membership_id: Date.now(), ...formData };
-      setMemberships([...memberships, newMembership]);
-      showFeedback("Membership added successfully.");
+    try {
+      if (editingMembership) {
+       
+        showFeedback("Update not implemented for memberships.");
+      } else {
+        const res = await fetch(`${API_BASE}/memberships`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          await loadInitialData();
+          showFeedback("Membership added successfully!");
+        }
+      }
+      setShowForm(false);
+    } catch (err) {
+      showFeedback("Error saving membership.");
     }
-
-    setShowForm(false);
   }
 
   return (
@@ -127,14 +154,15 @@ function Memberships() {
             </tr>
           </thead>
           <tbody>
+
             {filteredMemberships.map((membership) => {
-              const student = getStudent(membership.student_id);
-              const club = getClub(membership.club_id);
+              const student = students.find((s) => s.student_id === membership.student_id);
+              const club = clubs.find((c) => c.club_id === membership.club_id);
               return (
                 <tr key={membership.membership_id}>
-                  <td>{student?.name}</td>
+                  <td>{student?.name || "Unknown"}</td>
                   <td>
-                    <span className={`club-tag ${club?.category.toLowerCase()}`}>{club?.club_name}</span>
+                    <span className={`club-tag ${club?.category?.toLowerCase()}`}>{club?.club_name || "Unknown"}</span>
                   </td>
                   <td className="join-date">{formatDate(membership.join_date)}</td>
                   <td className="actions-col">
@@ -151,61 +179,62 @@ function Memberships() {
               );
             })}
           </tbody>
-        </table>
-        {filteredMemberships.length === 0 && <p className="empty">No memberships match your search.</p>}
+          {filteredMemberships.length === 0 && <p className="empty">No memberships match your search.</p>}
 
-        {showForm && (
-          <>
-            <p className="section-label" style={{ marginTop: "30px" }}>
-              {editingMembership ? "Edit membership" : "Add membership"}
-            </p>
-            <form className="form-panel" onSubmit={handleSubmit}>
-              <div className="form-grid">
-                <div className="field">
-                  <label>Student</label>
-                  <select
-                    value={formData.student_id}
-                    onChange={(e) => setFormData({ ...formData, student_id: Number(e.target.value) })}
-                  >
-                    {students.map((s) => (
-                      <option key={s.student_id} value={s.student_id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+          {showForm && (
+            <>
+              <p className="section-label" style={{ marginTop: "30px" }}>
+                {editingMembership ? "Edit membership" : "Add membership"}
+              </p>
+              <form className="form-panel" onSubmit={handleSubmit}>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>Student</label>
+                    <select
+                      value={formData.student_id}
+                      onChange={(e) => setFormData({ ...formData, student_id: Number(e.target.value) })}
+                    >
+                      {students.map((s) => (
+                        <option key={s.student_id} value={s.student_id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Club</label>
+                    <select
+                      value={formData.club_id}
+                      onChange={(e) => setFormData({ ...formData, club_id: Number(e.target.value) })}
+                    >
+                      {clubs.map((c) => (
+                        <option key={c.club_id} value={c.club_id}>
+                          {c.club_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Join date</label>
+                    <input
+                      type="date"
+                      value={formData.join_date}
+                      onChange={(e) => setFormData({ ...formData, join_date: e.target.value })}
+                    />
+                  </div>
                 </div>
-                <div className="field">
-                  <label>Club</label>
-                  <select
-                    value={formData.club_id}
-                    onChange={(e) => setFormData({ ...formData, club_id: Number(e.target.value) })}
-                  >
-                    {clubs.map((c) => (
-                      <option key={c.club_id} value={c.club_id}>
-                        {c.club_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Join date</label>
-                  <input
-                    type="date"
-                    value={formData.join_date}
-                    onChange={(e) => setFormData({ ...formData, join_date: e.target.value })}
-                  />
-                </div>
-              </div>
-              {formError && <p className="form-error">{formError}</p>}
-              <button type="submit" className="btn primary">
-                Save membership
-              </button>
-              <button type="button" className="btn ghost" style={{ marginLeft: "8px" }} onClick={() => setShowForm(false)}>
-                Cancel
-              </button>
-            </form>
-          </>
-        )}
+
+                {formError && <p className="form-error">{formError}</p>}
+                <button type="submit" className="btn primary">
+                  Save membership
+                </button>
+                <button type="button" className="btn ghost" style={{ marginLeft: "8px" }} onClick={() => setShowForm(false)}>
+                  Cancel
+                </button>
+              </form> 
+            </>
+          )}
+        </table>
       </div>
     </>
   );

@@ -27,8 +27,8 @@ app.get('/', (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-    console.log(`==================================================`);
+  
     console.log(`ALCHE Backend running on http://localhost:${PORT}`);
     console.log(`API Base URL: http://localhost:${PORT}/api`);
-    console.log(`==================================================`);
+
 });

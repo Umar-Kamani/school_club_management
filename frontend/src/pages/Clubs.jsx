@@ -59,12 +59,15 @@ function Clubs() {
   async function handleDelete(clubId) {
     if (!window.confirm("Are you sure you want to delete this club?")) return;
     try {
-      // Note: Delete API needs to be added to backend, for now we simulate locally 
-      // but in a real app you'd call: await fetch(`${API_BASE}/clubs/${clubId}`, { method: 'DELETE' })
-      setClubs(clubs.filter((c) => c.club_id !== clubId));
-      showFeedback("Club deleted.");
+      const res = await fetch(`${API_BASE}/clubs/${clubId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setClubs(clubs.filter((c) => c.club_id !== clubId));
+        showFeedback("Club deleted from database.");
+      } else {
+        throw new Error("Failed to delete");
+      }
     } catch (err) {
-      showFeedback("Error deleting club.");
+      showFeedback("Error deleting club from server.");
     }
   }
 
@@ -77,19 +80,31 @@ function Clubs() {
 
     try {
       if (editingClub) {
-        // Update API Call (To be added to backend)
-        setClubs(clubs.map((c) => (c.club_id === editingClub.club_id ? { ...c, ...formData } : c)));
-        showFeedback("Club updated successfully.");
+        const res = await fetch(`${API_BASE}/clubs/${editingClub.club_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          setClubs(clubs.map((c) => (c.club_id === editingClub.club_id ? { ...c, ...formData } : c)));
+          showFeedback("Club updated in database.");
+        }
       } else {
-        // Create API Call (To be added to backend, currently backend only has memberships POST)
-        // Simulating the add for now until I expand the backend
-        const newClub = { club_id: Date.now(), ...formData };
-        setClubs([...clubs, newClub]);
-        showFeedback("Club added successfully.");
+        const res = await fetch(`${API_BASE}/clubs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        if (res.ok) {
+          const newClub = await res.json();
+          // Re-fetch clubs to get the actual DB ID
+          await fetchClubs();
+          showFeedback("Club saved to database!");
+        }
       }
       setShowForm(false);
     } catch (err) {
-      showFeedback("Error saving club.");
+      showFeedback("Error saving club to server.");
     }
   }
 
