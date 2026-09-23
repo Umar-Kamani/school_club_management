@@ -42,7 +42,7 @@ The website will be available at `http://localhost:5173`.
 
 ---
 
-## 📐 Architecture (MVC)
+##  Architecture (MVC)
 The project follows the Model-View-Controller pattern to ensure scalability:
 
 - **Models (`backend/models/`):** Define the data structure and database queries.
