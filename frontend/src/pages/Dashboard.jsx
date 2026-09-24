@@ -1,8 +1,42 @@
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import { students, clubs, memberships } from "../data/mockData";
 import "./Dashboard.css";
 
+const API_BASE = "http://localhost:3000/api";
+
+function formatDate(dateString) {
+  if (!dateString) return "N/A";
+  return new Date(dateString).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function Dashboard() {
+  const [students, setStudents] = useState([]);
+  const [clubs, setClubs] = useState([]);
+  const [memberships, setMemberships] = useState([]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  async function loadDashboardData() {
+    try {
+      const [stuRes, clubRes, memRes] = await Promise.all([
+        fetch(`${API_BASE}/students`),
+        fetch(`${API_BASE}/clubs`),
+        fetch(`${API_BASE}/memberships`),
+      ]);
+      setStudents(await stuRes.json());
+      setClubs(await clubRes.json());
+      setMemberships(await memRes.json());
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+    }
+  }
+
   return (
     <>
       <Header>
@@ -34,7 +68,7 @@ function Dashboard() {
               <span className="who">
                 {student?.name} joined <span>{club?.club_name}</span>
               </span>
-              <span className="when">{membership.join_date}</span>
+              <span className="when">{formatDate(membership.join_date)}</span>
             </div>
           );
         })}
