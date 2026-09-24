@@ -7,6 +7,7 @@ const API_BASE = "http://localhost:3000/api";
 
 function Clubs() {
   const [clubs, setClubs] = useState([]);
+  const [memberships, setMemberships] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -19,6 +20,7 @@ function Clubs() {
   // Fetch clubs from backend
   useEffect(() => {
     fetchClubs();
+    fetchMemberships();
   }, []);
 
   async function fetchClubs() {
@@ -30,6 +32,16 @@ function Clubs() {
       showFeedback("Error loading clubs from server.");
     }
   }
+
+  async function fetchMemberships() {
+    try {
+      const res = await fetch(`${API_BASE}/memberships`);
+      const data = await res.json();
+      setMemberships(data);
+    } catch (err) {
+      showFeedback("Error loading memberships from server.");
+    }
+}
 
   const filteredClubs = clubs.filter((club) => {
     const matchesCategory = activeCategory === "All" || club.category === activeCategory;
@@ -149,7 +161,7 @@ function Clubs() {
               <h3>{club.club_name}</h3>
               <p className="club-desc">{club.description}</p>
               <div className="club-meta">
-                <span className="members">Loading members...</span>
+              <span className="members"> {memberships.filter((m) => m.club_id === club.club_id).length} members</span>
                 <div className="club-actions">
                   <button className="btn ghost small" onClick={() => openEditForm(club)}>
                     Edit
