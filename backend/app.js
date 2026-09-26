@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
 
 // Import Routes
@@ -24,6 +26,26 @@ app.use('/api/memberships', membershipRoutes);
 app.get('/', (req, res) => {
     res.send('ALCHE Club Management Server is Running!');
 });
+
+const swaggerOptions = {
+    swaggerDefinition: {
+        myapi: '3.000',
+        info: {
+            title: "School Club Management System API",
+            version: "1.0.0",
+            description: "This page serves as a documentation of our School Club Management System API "
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`,
+            },
+        ],
+    },
+    apis: ['./routes/*.js'],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Start Server
 app.listen(PORT, () => {
