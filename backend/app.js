@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 
 const swaggerOptions = {
     swaggerDefinition: {
-        myapi: '3.000',
+        openapi: '3.0.0',
         info: {
             title: "School Club Management System API",
             version: "1.0.0",
@@ -52,5 +52,5 @@ app.listen(PORT, () => {
   
     console.log(`ALCHE Backend running on http://localhost:${PORT}`);
     console.log(`API Base URL: http://localhost:${PORT}/api`);
-
+    console.log(`Swagger Docs: http://localhost:${PORT}/api-docs`);
 });
