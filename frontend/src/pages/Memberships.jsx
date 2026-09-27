@@ -166,9 +166,9 @@ function Memberships() {
                   <td className="join-date">{formatDate(membership.join_date)}</td>
                   <td className="actions-col">
                     <div className="row-actions">
-                      <button className="btn ghost small" onClick={() => openEditForm(membership)}>
-                        Edit
-                      </button>
+                      {/*<button className="btn ghost small" onClick={() => openEditForm(membership)}>*/}
+                      {/*  Edit*/}
+                      {/*</button>*/}
                       <button className="btn danger small" onClick={() => handleRemove(membership.membership_id)}>
                         Remove
                       </button>
