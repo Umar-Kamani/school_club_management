@@ -50,4 +50,5 @@ The project follows the Model-View-Controller pattern to ensure scalability:
 - **Views (Frontend):** The React application that renders the data for the user.
 - **Routes (`backend/app.js`):** Map the API endpoints to the specific controllers.
 
-
+## Video
+https://canva.link/f22j9qps3smum20 
